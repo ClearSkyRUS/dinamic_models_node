@@ -18,8 +18,8 @@ app.use(cors())
 
 
 mongoose.connect(config.mongoConnection, config.mongoConnectionOptions, (err, db) => {
-    if (err) console.log(err)
-    initGfs('uploads')
+	if (err) console.log(err)
+	initGfs('uploads')
 })
 
 import { BaseControler, FilesControler } from './controlers'
@@ -36,13 +36,13 @@ app.get('/file', File.get)
 
 let server = null
 if (!config.https)
-    server = http.createServer(null, app)
+	server = http.createServer(null, app)
 // else 
 // 	server = https.createServer(getCerts(config.certPaths), app)
 
 if (server) {
-    server.keepAliveTimeout = 60000 * 2
-    server.listen(config.port)
-    io.listen(server);
-    console.log("server started!")
+	server.keepAliveTimeout = 60000 * 2
+	server.listen(config.port)
+	io.listen(server);
+	console.log("server started!")
 }

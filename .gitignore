@@ -3,3 +3,4 @@ node_modules
 src/config.js
 src/configServer.js
 dist
+yarn.lock
