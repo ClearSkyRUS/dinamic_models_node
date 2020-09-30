@@ -4,3 +4,4 @@ src/config.js
 src/configServer.js
 dist
 yarn.lock
+package-lock.json
