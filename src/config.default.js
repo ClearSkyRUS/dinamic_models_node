@@ -7,6 +7,9 @@ const config = {
 	mongoConnectionOptions: {
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
+		useFindAndModify: false,
+		useCreateIndex: true,
+		useUnifiedTopology: true,
 		auth: {
 			authSource: "admin"
 		},
