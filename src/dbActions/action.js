@@ -1,8 +1,8 @@
 import mongoose from 'mongoose'
 
 export default ({
-	onSucces = (data) => console.log(data),
-	onError = (data) => console.log(data),
+	onSucces = data => console.log(data),
+	onError = data => console.log(data),
 	action = 'find',
 	modelName = 'model',
 	model,
@@ -33,11 +33,18 @@ export default ({
 				query.$or.push({ [key]: regex })
 		}
 	}
+	const paginateAction = action === 'paginate'
 	const findAction = action === 'find' || action === 'findOne' || action === 'findById'
+	const additionalOptions = paginateAction ? { lean: true, leanWithId: false } : {}
 	const firstArg = findAction ? options : query
-	const secondArg = findAction ? query : options
+	const secondArg = findAction 
+		? query 
+		: (Object.keys({ ...options, ...additionalOptions }).length ? { ...options, ...additionalOptions } : undefined)
 
 	let exec = model[action](firstArg, secondArg, additional)
+
+	if (findAction)
+		exec = exec.lean()
 
 	if (select)
 		exec = exec.select(select)
@@ -46,7 +53,7 @@ export default ({
 		if (Array.isArray(populate)) {
 			populate.forEach(element => {
 				exec = exec.populate(element)
-			});
+			})
 		} else {
 			exec = exec.populate(populate)
 		}
@@ -57,9 +64,10 @@ export default ({
 	if (sort)
 		exec = exec.sort(sort)
 
-	exec.then((Items, err) => {
+	exec.then((items, err) => {
 		if (err)
-			onError(err)
-		onSucces(Items)
-	}).catch(err => onError(err))
+			onError(`Exec error: ${err}`)
+
+		onSucces(items)
+	}).catch(err => onError(`Exec catch: ${err}`))
 }
