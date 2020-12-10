@@ -5,14 +5,7 @@ const config = {
 		useFindAndModify: false,
 		useCreateIndex: true,
 		useUnifiedTopology: true,
-		reconnectTries: Number.MAX_VALUE,
-		reconnectInterval: 500,
 		connectTimeoutMS: 10000,
-		auth: {
-			authSource: "admin"
-		},
-		user: process.env.MONGO_USERNAME,
-		pass: process.env.MONGO_PASSWORD
 	},
 	mongoDatabse: process.env.MONGO_DB || 'ezserver',
 	mongoHost: process.env.MONGO_HOSTNAME || '127.0.0.1',
@@ -22,5 +15,16 @@ const config = {
 }
 
 config.mongoConnection = `mongodb://${config.mongoHost}:${config.mongoPort}/${config.mongoDatabse}`
+
+if (process.env.MONGO_USERNAME && process.env.MONGO_PASSWORD) {
+	config.mongoConnectionOptions = {
+		...config.mongoConnectionOptions,
+		auth: {
+			authSource: "admin"
+		},
+		user: process.env.MONGO_USERNAME,
+		pass: process.env.MONGO_PASSWORD
+	}
+}
 
 export default config;
