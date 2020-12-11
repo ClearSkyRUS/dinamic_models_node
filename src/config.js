@@ -11,7 +11,7 @@ const config = {
 	mongoHost: process.env.MONGO_HOSTNAME || '127.0.0.1',
 	mongoPort: process.env.MONGO_PORT || '27017',
 	telegramToken: '',
-	port: process.env.PORT || 3003,
+	port: process.env.RUN_PORT || 3003,
 }
 
 config.mongoConnection = `mongodb://${config.mongoHost}:${config.mongoPort}/${config.mongoDatabse}`
