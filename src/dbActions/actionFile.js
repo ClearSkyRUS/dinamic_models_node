@@ -1,8 +1,6 @@
 import mongoose from 'mongoose'
 import sharp from 'sharp'
-import request from 'request'
 import { gfs, upload } from '../utils'
-import { action } from './'
 
 const fileActions = {
 	get: ({

@@ -5,6 +5,7 @@ import cors from 'cors'
 import bodyParser from 'body-parser'
 import config from './config'
 import http from 'http'
+import rootModel from './models'
 
 import { initGfs } from './utils'
 
@@ -34,7 +35,8 @@ const server = http.createServer(null, app)
 
 if (server) {
 	server.keepAliveTimeout = 60000 * 2
-	server.listen(config.port)
-	io.listen(server);
-	console.log(`server on ${config.port} started!`)
+	server.listen(config.port, '0.0.0.0', () => {
+		console.log(`server on ${config.port} started!`)
+	})
+	// io.listen(server);
 }
