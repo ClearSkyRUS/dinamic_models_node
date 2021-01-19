@@ -27,4 +27,4 @@ if (process.env.MONGO_USERNAME && process.env.MONGO_PASSWORD) {
 	}
 }
 
-export default config;
+export default config

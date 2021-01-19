@@ -9,7 +9,7 @@ const initModel = model => {
 	const mSchema = new Schema(model.schemaObj, { timestamps: true, ...model.schemaProps })
 	mSchema.plugin(mongoosePaginate)
 	mSchema.plugin(uniqueValidator)
-	mongoose.model(model.name, mSchema)
+	return mongoose.model(model.name, mSchema)
 }
 
 export default initModel

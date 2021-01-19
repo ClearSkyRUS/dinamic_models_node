@@ -12,7 +12,7 @@ const fileActions = {
 			return onError('Not valid _id')
 		const stream = gfs.openDownloadStream(new mongoose.Types.ObjectId(query.id)).on('error', err => onError(err))
 		if (query.width || query.height)
-			return onSucces(stream.pipe(fileActions.resize(query).on('error', err => onError(err))))
+			return onSucces(stream.pipe(resize(query).on('error', err => onError(err))))
 		onSucces(stream)
 	},
 	create: ({
@@ -26,17 +26,6 @@ const fileActions = {
 			onSucces(req.files)
 		})
 	},
-	resize: ({
-		width,
-		height
-	}) => {
-		return sharp()
-			.resize(
-				parseInt(width) ? parseInt(width) : null,
-				parseInt(height) ? parseInt(height) : null
-			)
-			.webp()
-	},
 	delete: ({
 		id,
 		onSucces = (data) => console.log(data),
@@ -49,6 +38,18 @@ const fileActions = {
 			onSucces({ message: 'File deleted!' })
 		})
 	}
+}
+
+const resize = ({
+	width,
+	height
+}) => {
+	return sharp()
+		.resize(
+			parseInt(width) ? parseInt(width) : null,
+			parseInt(height) ? parseInt(height) : null
+		)
+		.webp()
 }
 
 export default fileActions

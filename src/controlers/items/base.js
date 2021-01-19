@@ -17,48 +17,68 @@ class BaseControler {
 			action: 'findOne',
 			options: { name: modelName },
 			select: 'images',
-			onSucces: model => parseImage(model.images[imageName]),
+			onSucces: model => parseImage(model ? model.images[imageName] : null, requestLang),
 			onError: err => res.json({ err: err })
 		})
-		const parseImage = (image, defaults = false) => {
+		const parseImage = (image, lang, defaultsImage = false, defaultsLang = false) => {
 			if (!image) {
-				if (defaults) return res.json({ err: 'no image found', image: image })
+				if (defaultsImage) return res.json({ err: 'no image found', image: image })
 				return action({
 					modelName: 'defaultImage',
 					action: 'findOne',
 					options: { name: imageName },
 					select: 'params',
-					onSucces: item => parseImage(item ? item.params : item, true),
+					onSucces: item => parseImage(item ? item.params : null, lang, true),
+					onError: err => res.json({ err: err })
+				})
+			}
+			if (!lang && !defaultsLang) {
+				return action({
+					modelName: 'lang',
+					action: 'findOne',
+					options: { isActive: true, default: true },
+					select: 'sign',
+					onSucces: item => parseImage(image, item ? item.sign : item, true, true),
 					onError: err => res.json({ err: err })
 				})
 			}
 
-			const sort = req.query.sort
-				? JSON.parse(req.query.sort)
-				: image.sort || { updatedAt: -1 }
+			let sort = req.query.sort
+				? req.query.sort
+				: image.sort || '-updatedAt'
+			sort += ' -_id'
 			const limit = req.query.limit || image.limit || 10
-
 			delete req.query.sort
 			delete req.query.limit
 			delete req.query.action
 
 			const options = {
-				...(image.query 
+				...(image.query
 					? image.query
 					: {}),
-				...(req.query 
+				...(req.query
 					? req.query
 					: {})
 			}
+			
+			for (const key in options) {
+				if (Array.isArray(options[key]) && options[key].length === 2) {
+					options[key] = {
+						$gte: options[key][0],
+    				$lte: options[key][1]
+					}
+				}
+			}
+
 			const method = image.action || 'paginate'
 			let select = image.select
 			const populate = image.populate
 			const drop = image.drop
 
-			if (requestLang && ((select && select.includes(LANG_HOLDER)) || checkObjectForHolder(populate, LANG_HOLDER) || checkObjectForHolder(drop, LANG_HOLDER))) {
-				select = select ? select.replace(LANG_HOLDER, requestLang) : select
-				replaceAllInObject(populate, requestLang, LANG_HOLDER)
-				replaceAllInObject(drop, requestLang, LANG_HOLDER)
+			if (lang && ((select && select.includes(LANG_HOLDER)) || checkObjectForHolder(populate, LANG_HOLDER) || checkObjectForHolder(drop, LANG_HOLDER))) {
+				select = select ? select.replace(LANG_HOLDER, lang) : select
+				replaceAllInObject(populate, lang, LANG_HOLDER)
+				replaceAllInObject(drop, lang, LANG_HOLDER)
 			}
 			if ((select && select.includes(LANGS_HOLDER)) || checkObjectForHolder(populate, LANGS_HOLDER) || checkObjectForHolder(drop, LANGS_HOLDER)) {
 				getLangsAndContinue([method, options, select, populate, limit, sort, drop], setLangsAndGetData)
@@ -115,8 +135,10 @@ class BaseControler {
 		const getData = (method, options, params, drop) => {
 			params = {
 				options: {
-					...options,
-					...(method === 'paginate' ? params : {}),
+					...(method === 'paginate' ? params : options),
+				},
+				query: {
+					...(method === 'paginate' ? options : {}),
 				},
 				...(method !== 'paginate' ? params : {}),
 			}

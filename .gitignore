@@ -1,6 +1,9 @@
 .idea
 node_modules
 dist
+seeders-dist
+seed-config-dist
 yarn.lock
+yarn-error.log
 package-lock.json
 .env

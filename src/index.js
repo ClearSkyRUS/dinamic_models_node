@@ -5,7 +5,7 @@ import cors from 'cors'
 import bodyParser from 'body-parser'
 import config from './config'
 import http from 'http'
-import rootModel from './models'
+import initModels from './models/initModels'
 
 import { initGfs } from './utils'
 
@@ -16,6 +16,7 @@ app.use(cors())
 
 mongoose.connect(config.mongoConnection, config.mongoConnectionOptions, (err, db) => {
 	if (err) console.log(err)
+	initModels()
 	initGfs('uploads')
 })
 
