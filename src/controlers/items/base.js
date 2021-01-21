@@ -43,6 +43,7 @@ class BaseControler {
 				})
 			}
 
+			const page = req.query.page || 1
 			let sort = req.query.sort
 				? req.query.sort
 				: image.sort || '-updatedAt'
@@ -51,6 +52,7 @@ class BaseControler {
 			delete req.query.sort
 			delete req.query.limit
 			delete req.query.action
+			delete req.query.page
 
 			const options = {
 				...(image.query
@@ -81,11 +83,11 @@ class BaseControler {
 				replaceAllInObject(drop, lang, LANG_HOLDER)
 			}
 			if ((select && select.includes(LANGS_HOLDER)) || checkObjectForHolder(populate, LANGS_HOLDER) || checkObjectForHolder(drop, LANGS_HOLDER)) {
-				getLangsAndContinue([method, options, select, populate, limit, sort, drop], setLangsAndGetData)
+				getLangsAndContinue([method, options, select, populate, limit, sort, page, drop], setLangsAndGetData)
 				return
 			}
 
-			getData(method, options, { select, populate, limit, sort }, drop)
+			getData(method, options, { select, populate, limit, sort, page }, drop)
 		}
 		const checkObjectForHolder = (object, HOLDER) => {
 			if (!object) return false
@@ -106,12 +108,12 @@ class BaseControler {
 				onError: err => res.json({ err: err })
 			})
 		}
-		const setLangsAndGetData = (method, options, select, populate, limit, sort, drop, langs) => {
+		const setLangsAndGetData = (method, options, select, populate, limit, sort, page, drop, langs) => {
 			langs = langs.map(lang => lang.sign).join(' ')
 			select = select ? select.replace(LANGS_HOLDER, langs) : select
 			replaceAllInObject(populate, langs, LANGS_HOLDER)
 			replaceAllInObject(drop, langs, LANGS_HOLDER)
-			getData(method, options, { select, populate, limit, sort }, drop)
+			getData(method, options, { select, populate, limit, sort, page }, drop)
 		}
 		const replaceAllInObject = (object, replacer, HOLDER) => {
 			if (!object) return object
